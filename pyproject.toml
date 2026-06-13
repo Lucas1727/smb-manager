@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "smb-manager"
+version = "0.1.0"
+description = "A GTK4 UI for sharing folders over SMB on Fedora"
+requires-python = ">=3.11"
+
+dependencies = [] # Runtime deps (PyGObject, gtk4, libadwaita, samba) come from system RPMs, not pip -- they cannot be pip-installed usefully.
+
+[project.scripts]
+smb-manager = "smbmanager.app:main"
+smb-manager-daemon = "smbmanager.daemon:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

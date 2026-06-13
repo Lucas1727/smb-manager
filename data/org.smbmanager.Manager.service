@@ -1,0 +1,5 @@
+[D-BUS Service]
+Name=org.smbmanager.Manager
+Exec=/usr/libexec/smb-manager-daemon
+User=root
+SystemdService=smb-manager-daemon.service

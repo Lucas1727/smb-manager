@@ -1,0 +1,16 @@
+[Unit]
+Description=SMB Manager privileged backend
+# Started on demand by D-Bus activation; not enabled at boot.
+
+[Service]
+Type=dbus
+BusName=org.smbmanager.Manager
+ExecStart=/usr/libexec/smb-manager-daemon
+# This daemon's whole job is to export *arbitrary* user folders -- typically
+# under /home -- so it needs real read-write access to the filesystem to create
+# and SELinux-label share directories. ProtectHome / a fixed ReadWritePaths
+# allow-list would make those paths read-only (EROFS), so we don't use them.
+# It still runs only on demand and exits when idle.
+ProtectSystem=false
+ProtectHome=false
+NoNewPrivileges=false

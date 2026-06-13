@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=SMB Manager
+Comment=Share folders over SMB
+Exec=smb-manager
+Icon=folder-remote
+Terminal=false
+Type=Application
+Categories=System;Settings;Network;
+Keywords=samba;smb;share;network;folder;
