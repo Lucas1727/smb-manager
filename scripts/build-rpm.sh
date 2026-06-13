@@ -19,7 +19,7 @@ VERSION=$(rpmspec -q --qf '%{version}\n' "$SPEC" 2>/dev/null | head -1)
 PKG="${NAME}-${VERSION}"
 MOCK_ROOT="${MOCK_ROOT:-fedora-$(rpm -E %fedora)-$(uname -m)}"
 
-TOPDIR="$(rpm -E %_topdir)"   # usually ~/rpmbuild
+TOPDIR="$REPO/dist/rpmbuild"
 mkdir -p "$TOPDIR"/{SOURCES,SPECS,SRPMS,RPMS,BUILD}
 
 echo ">> staging source tarball: ${PKG}.tar.gz"
@@ -33,23 +33,25 @@ rsync -a \
 tar -C "$TMP" -czf "$TOPDIR/SOURCES/${PKG}.tar.gz" "$PKG"
 cp "$SPEC" "$TOPDIR/SPECS/"
 
+RPMBUILD=(rpmbuild --define "_topdir $TOPDIR")
+
 case "${1:-binary}" in
     srpm)
-        rpmbuild -bs "$TOPDIR/SPECS/$(basename "$SPEC")"
+        "${RPMBUILD[@]}" -bs "$TOPDIR/SPECS/$(basename "$SPEC")"
         ;;
     mock)
-        rpmbuild -bs "$TOPDIR/SPECS/$(basename "$SPEC")"
+        "${RPMBUILD[@]}" -bs "$TOPDIR/SPECS/$(basename "$SPEC")"
         SRPM=$(ls -t "$TOPDIR"/SRPMS/${PKG}-*.src.rpm | head -1)
         echo ">> mock build in $MOCK_ROOT"
         mock -r "$MOCK_ROOT" "$SRPM"
         echo ">> artifacts in /var/lib/mock/${MOCK_ROOT}/result/"
         ;;
     binary|"")
-        rpmbuild -bb "$TOPDIR/SPECS/$(basename "$SPEC")"
+        "${RPMBUILD[@]}" -bb "$TOPDIR/SPECS/$(basename "$SPEC")"
         echo
-        echo ">> built:"
-        ls -1 "$TOPDIR"/RPMS/noarch/${PKG}-*.rpm
-        echo ">> install with: sudo dnf install <path-above>"
+        RPM=$(ls -t "$TOPDIR"/RPMS/noarch/${PKG}-*.rpm | head -1)
+        echo ">> built: $RPM"
+        echo ">> install with: sudo dnf install $RPM"
         ;;
     *)
         echo "usage: $0 [binary|srpm|mock]" >&2
